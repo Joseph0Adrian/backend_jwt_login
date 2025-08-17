@@ -16,7 +16,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-$authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+$headers = getallheaders();
+
+if (isset($headers['Authorization'])) {
+    $authHeader = $headers['Authorization'];
+} elseif (isset($headers['authorization'])) {
+    // Algunos navegadores/servidores cambian la capitalización
+    $authHeader = $headers['authorization'];
+} else {
+    $authHeader = '';
+}
+
 
 if (!$authHeader || !preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
     http_response_code(401);
@@ -24,6 +34,8 @@ if (!$authHeader || !preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
     exit;
 }
 
+var_dump($matches);
+die();
 $token = $matches[1];
 $key = trim(file_get_contents("secret.key"));
 
